@@ -67,11 +67,11 @@ function isOutOfBounds(index)
     elseif nodes[index].x >= love.graphics.getWidth() then
         nodes[index].x = -player.w
         isOutOfBounds = true
-    elseif nodes[index].y <= 0 then
-        nodes[index].direction = dir.down
+    elseif nodes[index].y + player.h <= 0 then
+        nodes[index].y = love.graphics.getWidth()
         isOutOfBounds = true
     elseif nodes[index].y >= love.graphics.getHeight() then
-        nodes[index].direction = dir.up
+        nodes[index].y = -player.h
         isOutOfBounds = true
     end
     return isOutOfBounds
