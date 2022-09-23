@@ -24,6 +24,9 @@ function love.update(dt)
 end
 
 function love.keypressed(key)
+    if key == "v" then
+        addNode()
+    end
     if key == "escape" then
         love.event.push("quit")
     end
