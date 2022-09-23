@@ -13,8 +13,9 @@ function player_load()
         w = 20,
         h = 20,
         padding = 5,
+        direction = dir.right
     }
-    instructions = {} -- store movement instructions in a table. Each instruction will only be completed when the final node has executed it
+    timer = 0;
 end
 function player_draw()
     for i,v in ipairs(nodes) do
@@ -22,39 +23,40 @@ function player_draw()
     end
 end
 function player_update(dt)
+    timer = timer + dt
     for i,v in ipairs(nodes) do
-        -- movement based on direction
-        if v.direction == dir.right then
-            v.x = v.x + player.speed * dt
-        elseif v.direction == dir.left then
-            v.x = v.x - player.speed * dt
-        elseif v.direction == dir.down then
-            v.y = v.y + player.speed * dt
-        elseif v.direction == dir.up then
-            v.y = v.y - player.speed * dt
-        end
-
         -- Check if player is out of bounds and then reverse their direction of movement
         if isOutOfBounds(i) and i > 1 then
-            fixPadding(i, i-1)
-        end
-        
-        if i > 1 then
-            if v.direction ~= nodes[i-1].direction then
-                v.direction = nodes[i-1].direction
-            end 
+            -- fixPadding(i, i-1)
+            print("out of bounds")
         end
     end
 
+    -- move the back node to the front of the leader to imitate movement
+    if timer >= 0.3 then
+        local newX = nodes[1].x
+        local newY = nodes[1].y
+        if player.direction == dir.right then
+            newX = nodes[1].x + (player.w + player.padding)
+        elseif player.direction == dir.left then
+            newX = nodes[1].x - (player.w + player.padding)
+        elseif player.direction == dir.down then
+            newY = nodes[1].y + (player.h + player.padding)
+        elseif player.direction == dir.up then
+            newY = nodes[1].y - (player.h + player.padding)
+        end
+        moveBackNodeToFront(newX, newY)
+        timer = 0
+    end
     -- change direction based on keypress
-    if love.keyboard.isDown("a") then
-        nodes[1].direction = dir.left
-    elseif love.keyboard.isDown("d") then
-        nodes[1].direction = dir.right
-    elseif love.keyboard.isDown("s") then
-        nodes[1].direction = dir.down
-    elseif love.keyboard.isDown("w") then
-        nodes[1].direction = dir.up
+    if love.keyboard.isDown("a") and player.direction ~= dir.right then
+        player.direction = dir.left
+    elseif love.keyboard.isDown("d") and player.direction ~= dir.left then
+        player.direction = dir.right
+    elseif love.keyboard.isDown("s") and player.direction ~= dir.up then
+        player.direction = dir.down
+    elseif love.keyboard.isDown("w") and player.direction ~= dir.down then
+        player.direction = dir.up
     end
 end
 
@@ -84,16 +86,16 @@ function addNode()
         direction = node.direction
     }
     -- Calculate the appropriate placement based on the direction of travel of the node in front
-    if node.direction == dir.right then
+    if player.direction == dir.right then
         new_node.x = node.x - (player.w + player.padding)
         new_node.y = node.y
-    elseif node.direction == dir.left then
+    elseif player.direction == dir.left then
         new_node.x = node.x + (player.w + player.padding)
         new_node.y = node.y
-    elseif node.direction == dir.up then
+    elseif player.direction == dir.up then
         new_node.x = node.x
         new_node.y = node.y + (player.w + player.padding)
-    elseif node.direction == dir.down then
+    elseif player.direction == dir.down then
         new_node.x = node.x
         new_node.y = node.y - (player.h + player.padding)
     end
@@ -129,5 +131,19 @@ function fixPadding(nodeI, frontI)
         nodes[nodeI].y = nodes[frontI].y + (player.h + player.padding)
     elseif nodes[nodeI].direction == dir.down then
         nodes[nodeI].y = nodes[frontI].y - (player.h + player.padding)
+    end
+end
+
+function moveBackNodeToFront(newX, newY)    
+    local num = table.getn(nodes)
+    if num == 1 then
+        nodes[1].x = newX
+        nodes[1].y = newY
+    else
+        local tempNode = nodes[num]
+        tempNode.x = newX
+        tempNode.y = newY
+        table.remove(nodes, num)
+        table.insert(nodes, 1, tempNode)
     end
 end
