@@ -5,31 +5,45 @@ function player_load()
         down = "down",
         up = "up"
     }
-    nodes = {
-        {x = 100, y = 100, direction = dir.right}
-    }
     player = {
         speed = 200,
         w = 20,
         h = 20,
         padding = 5,
         direction = dir.right
+    }    
+    nodes = {
+        {x = 100, y = 100, direction = player.direction}
     }
+
+    addNode()
+    addNode()
     timer = 0;
+    isKeyPressEnabled = true
 end
 function player_draw()
     for i,v in ipairs(nodes) do
+        if gameover then
+            love.graphics.setColor(1,0,0)
+        else
+            love.graphics.setColor(1,1,1)
+        end
         love.graphics.rectangle("fill", v.x, v.y, player.w, player.h)
     end
 end
 function player_update(dt)
     timer = timer + dt
+    
     for i,v in ipairs(nodes) do
-        -- Check if player is out of bounds and then reverse their direction of movement
-        if isOutOfBounds(i) and i > 1 then
-            -- fixPadding(i, i-1)
-            print("out of bounds")
+        -- Collision logic (If the head touches another part of body, then it's gameover)
+        if i ~= 1 then
+            if collisonDetectedNoWidthHeight(nodes[1], v) then
+                triggerGameOver()     
+            elseif collisonDetectedNoWidthHeight(v, food) then
+                randomSpawn()
+            end       
         end
+        isOutOfBounds(i)
     end
 
     -- move the back node to the front of the leader to imitate movement
@@ -47,16 +61,23 @@ function player_update(dt)
         end
         moveBackNodeToFront(newX, newY)
         timer = 0
+        isKeyPressEnabled = true -- Enable Keypresses since the head has moved
     end
     -- change direction based on keypress
-    if love.keyboard.isDown("a") and player.direction ~= dir.right then
-        player.direction = dir.left
-    elseif love.keyboard.isDown("d") and player.direction ~= dir.left then
-        player.direction = dir.right
-    elseif love.keyboard.isDown("s") and player.direction ~= dir.up then
-        player.direction = dir.down
-    elseif love.keyboard.isDown("w") and player.direction ~= dir.down then
-        player.direction = dir.up
+    if isKeyPressEnabled then
+        if love.keyboard.isDown("a") and player.direction ~= dir.right then
+            player.direction = dir.left
+            isKeyPressEnabled = false
+        elseif love.keyboard.isDown("d") and player.direction ~= dir.left then
+            player.direction = dir.right
+            isKeyPressEnabled = false
+        elseif love.keyboard.isDown("s") and player.direction ~= dir.up then
+            player.direction = dir.down
+            isKeyPressEnabled = false
+        elseif love.keyboard.isDown("w") and player.direction ~= dir.down then
+            player.direction = dir.up
+            isKeyPressEnabled = false
+        end
     end
 end
 
@@ -81,35 +102,34 @@ end
 
 function addNode()
     local num = table.getn(nodes)
-    local node = nodes[num]
+    local node = nodes[num] -- Store the current end node
+    -- Create the structure for the new node
     local new_node = {
         direction = node.direction
     }
-    -- Calculate the appropriate placement based on the direction of travel of the node in front
-    if player.direction == dir.right then
+    -- Calculate the appropriate placement based on the direction of travel of the previous end node
+    if node.direction == dir.right then
         new_node.x = node.x - (player.w + player.padding)
         new_node.y = node.y
-    elseif player.direction == dir.left then
+    elseif node.direction == dir.left then
         new_node.x = node.x + (player.w + player.padding)
         new_node.y = node.y
-    elseif player.direction == dir.up then
+    elseif node.direction == dir.up then
         new_node.x = node.x
         new_node.y = node.y + (player.w + player.padding)
-    elseif player.direction == dir.down then
+    elseif node.direction == dir.down then
         new_node.x = node.x
         new_node.y = node.y - (player.h + player.padding)
     end
     
     -- calculate which instruction to follow
-    if num == 1 then
-        new_node.instruction = 1
-    elseif num > 1 then
-        new_node.instruction = node.instruction
-    end
+    -- if num == 1 then
+    --     new_node.instruction = 1
+    -- elseif num > 1 then
+    --     new_node.instruction = node.instruction
+    -- end
 
-    table.insert(nodes, new_node)
-
-    print("new node inserted")
+    table.insert(nodes, new_node) -- Insert the new node into the nodes table
 end
 
 function travelInline(nodeI, frontI)
@@ -136,6 +156,7 @@ end
 
 function moveBackNodeToFront(newX, newY)    
     local num = table.getn(nodes)
+    nodes[1].direction = player.direction
     if num == 1 then
         nodes[1].x = newX
         nodes[1].y = newY

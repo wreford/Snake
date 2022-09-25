@@ -1,23 +1,32 @@
 require "title"
 require "game"
+require "gameover"
 require "player"
+require "food"
 
-menu = "game"
+-- Lib imports
+require "common"
+require "libs/printText"
+require "libs/customButtons"
+
+menu = "title"
 playable = true
 
 function love.load()
+    common_load()
     game_load()
+    title_load()
 end
 function love.draw()
     if menu == "title" then
-
+        title_draw()
     elseif menu == "game" then
         game_draw()
     end
 end
 function love.update(dt)
     if menu == "title" then
-
+        title_update(dt)
     elseif menu == "game" then
         game_update(dt)
     end
@@ -28,6 +37,6 @@ function love.keypressed(key)
         addNode()
     end
     if key == "escape" then
-        love.event.push("quit")
+        quitGame()
     end
 end
