@@ -1,5 +1,9 @@
 function game_load()
     player_load()
+    -- Add the extra nodes
+    addNode()
+    addNode()
+
     food_load()
     pause = false
     gameover = false

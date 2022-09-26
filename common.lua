@@ -12,6 +12,8 @@ end
 function quitGame()
     love.event.push("quit")
 end
+
+-- transition to a new menu
 function changeMenu(menuName)
     if menuName == "title" then
         title_load()

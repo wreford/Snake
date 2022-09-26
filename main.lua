@@ -39,4 +39,10 @@ function love.keypressed(key)
     if key == "escape" then
         quitGame()
     end
+    if menu == "title" then
+        if key == "v" then
+            print("x: "..nodes[1].x)
+            print("y: "..nodes[1].y.."\n")
+        end
+    end
 end

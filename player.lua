@@ -16,9 +16,8 @@ function player_load()
         {x = 100, y = 100, direction = player.direction}
     }
 
-    addNode()
-    addNode()
-    timer = 0;
+    timer = 0
+    max_time = 0.3
     isKeyPressEnabled = true
 end
 function player_draw()
@@ -47,7 +46,7 @@ function player_update(dt)
     end
 
     -- move the back node to the front of the leader to imitate movement
-    if timer >= 0.3 then
+    if timer >= max_time then
         local newX = nodes[1].x
         local newY = nodes[1].y
         if player.direction == dir.right then
@@ -64,7 +63,7 @@ function player_update(dt)
         isKeyPressEnabled = true -- Enable Keypresses since the head has moved
     end
     -- change direction based on keypress
-    if isKeyPressEnabled then
+    if isKeyPressEnabled and menu == "game" then
         if love.keyboard.isDown("a") and player.direction ~= dir.right then
             player.direction = dir.left
             isKeyPressEnabled = false
