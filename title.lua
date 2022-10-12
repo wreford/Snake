@@ -24,7 +24,7 @@ function title_load()
     max_time = 0.2
 end
 function title_draw()
-    set_color(1,1,1)
+    set_color(255,255,255)
     printCentreTextOnX(title.txt, hugeText, title.y)
     -- createButtonCentreOnX(text, font, btn_y, action)
     -- createButtonCentreOnX("Play", normalText, 200, function() changeMenu("game") end)

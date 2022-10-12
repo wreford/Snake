@@ -15,6 +15,13 @@ end
 
 -- transition to a new menu
 function changeMenu(menuName)
+    -- Reset old menu
+    if menu == "game" then
+        game_load()
+    elseif menu == "title" then
+        title_load()
+    end
+    -- Go to new menu
     if menuName == "title" then
         title_load()
         menu = "title"

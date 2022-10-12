@@ -24,6 +24,8 @@ function player_draw()
     for i,v in ipairs(nodes) do
         if gameover then
             love.graphics.setColor(1,0,0)
+        elseif i == 1 then
+            set_color(0, 170, 237)
         else
             love.graphics.setColor(1,1,1)
         end
